@@ -22,6 +22,7 @@ public class Item extends Entity {
             new ItemAttributes("Untitled-1-05.png"),
             new ItemAttributes("Untitled-1-15.png"),
             new ItemAttributes("Untitled-1-06.png")
+
     };
     public static final ArrayList<ItemAttributes> itemTypes = new ArrayList<ItemAttributes>(Arrays.asList(attributes));
     private static final int DEFAULT_TYPE = 0;

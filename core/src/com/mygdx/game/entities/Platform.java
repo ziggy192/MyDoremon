@@ -15,7 +15,7 @@ public class Platform extends Entity {
     public static boolean BROKEN = false;
 
     private int type;
-    private int flag;
+    private int flag; // mark when cracked up
     private int state;
     private float vx;
 

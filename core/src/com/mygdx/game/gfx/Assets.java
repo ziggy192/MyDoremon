@@ -40,9 +40,9 @@ public class Assets {
         player_fall[1] = getFlipped("mon_fall2.png");
 
         base = new TextureRegion(sheet, 0, 614, 100, 5);
-        platform[0] = new TextureRegion(sheet, 0, 0, 105, 31);
-        platform[1] = new TextureRegion(sheet, 0, 61, 105, 31);
-        platform[2] = new TextureRegion(sheet, 0, 31, 105, 31);
+        platform[0] = new TextureRegion(sheet, 0, 0, 105, 31); // white platform
+        platform[1] = new TextureRegion(sheet, 0, 61, 105, 31); // blue platform
+        platform[2] = new TextureRegion(sheet, 0, 31, 105, 31); // red platform
         platform[3] = new TextureRegion(sheet, 0, 90, 105, 31);
         platform[4] = new TextureRegion(sheet, 0, 645, 105, 31);
 

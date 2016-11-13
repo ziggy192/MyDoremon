@@ -24,6 +24,8 @@ import java.util.ArrayList;
 public class World {
 
     private static final int TIME_TO_SHOW_AN_ITEM = 100;
+    private static final int TIME_TO_SHOW_AN_SPRING = 300;
+
     private static final int DEFAULT_PLATFORM_POSITION_WITH_SPRING = 0;
     private Handler handler;
 
@@ -40,7 +42,8 @@ public class World {
     private int falling;
     private ShapeRenderer hub;
     BitmapFont font;
-    private int count = 0;
+    private int countItemTime = 0;
+    private  int countSpringTime = 0;
 
     private boolean gameOver;
 
@@ -54,7 +57,9 @@ public class World {
     }
 
     public void tick() {
-        count ++;
+        countItemTime++;
+        countSpringTime++;
+
 
         for (Platform platform : platforms) {
             platform.tick();
@@ -62,12 +67,12 @@ public class World {
         platformBroken.tick();
         player.tick();
         base.tick();
+        platformScrolling();
+
+//        createSpring();
         spring.tick();
 
-        createSpring();
-        platformScrolling();
         collides();
-
         if (player.isDead()) {
             gameOver();
         }
@@ -96,7 +101,13 @@ public class World {
         hub.end();
 
         batch.begin();
+
+
         font.draw(batch, "Score: " + score, 25, 45);
+
+//        font.draw(batch, "Spring state: " + spring.getState(), 25, 45);
+
+
         for (Platform platform : platforms) {
             platform.render(batch);
         }
@@ -115,11 +126,12 @@ public class World {
             spring.setAppear(true);
 
             if (spring.getY() > handler.getHeight() / 1.1 || p.getFlag() == 1) {
-                spring.setState(0);
+//                spring.setState(0);
                 spring.setAppear(false);
             }
         } else {
             // if not the specified type, remove the spring
+
             spring.setX(0 - spring.getX());
             spring.setY(0 - spring.getY());
         }
@@ -144,12 +156,29 @@ public class World {
                 //new
                 platform.getItem().getNewRandomType();
 
-                if (count >= TIME_TO_SHOW_AN_ITEM){
-                    count=0;
+                if (countItemTime >= TIME_TO_SHOW_AN_ITEM){
+                    countItemTime =0;
                     platform.showItem();
                 }
 
+                if (platform == spring.getAttachedPlatform()){
+                    if (spring.isAppear()) {
 
+                    }
+                }
+
+                if (platform == spring.getAttachedPlatform()) {
+                    if (spring.isAppear()) {
+                        //spring passed away
+                        rearrangeSpring();
+                    } else {
+                        if (countSpringTime >= TIME_TO_SHOW_AN_SPRING) {
+                            //show the spring
+                            countSpringTime =0;
+                            spring.setAppear(true);
+                        }
+                    }
+                }
                 platform.setFlag(0);
             }
         }
@@ -168,11 +197,9 @@ public class World {
             Item item = platform.getItem();
             if (player.getBounds().overlaps(item.getBounds())
                     && item.isAlive()) {
-                System.out.println("Got "+item);
+                System.out.println("Got " + item);
                 item.setAlive(false);
             }
-
-
 
 
             // collides with platforms
@@ -197,22 +224,34 @@ public class World {
                 }
                 player.jump();
             }
-
-
         }
+
 
         // collides with spring
-        if (player.getVy() > 0 && spring.getState() == 0
-                && (player.getX() + offset < spring.getX() + spring.getWidth())
-                && (player.getX() + player.getWidth() - offset > spring.getX())
-                && (player.getY() + player.getHeight() > spring.getY())
-                && (player.getY() + player.getHeight()
-                < spring.getY() + spring.getHeight())) {
-            spring.setState(1);
+        if (player.getVy() >= 0
+                && spring.isAppear()
+                && player.getBounds().overlaps(spring.getBounds())
+//                && spring.getState() == 0
+
+//                && (player.getX() + offset < spring.getX() + spring.getWidth())
+//                && (player.getX() + player.getWidth() - offset > spring.getX())
+//                && (player.getY() + player.getHeight() > spring.getY())
+//                && (player.getY() + player.getHeight()
+//                < spring.getY() + spring.getHeight())
+                ) {
+//            spring.setState(1);
             player.jumpHigh();
+            spring.setAppear(false);
+            rearrangeSpring();
         }
+    }
 
 
+    public void rearrangeSpring() {
+        spring.setAppear(false);
+        countSpringTime=0;
+        int newPlatformNum = (int) (Math.random()*platforms.size());
+        spring.setAttachedPlatform(platforms.get(newPlatformNum));
     }
 
     private void gameOver() {
@@ -242,7 +281,12 @@ public class World {
             platforms.add(Platform.generate(handler));
         }
         platformBroken = PlatformBroken.generate(handler);
-        spring = Spring.generate(handler);
+
+        //changed
+//        spring = Spring.generate(handler);
+
+        spring = new Spring(handler, platforms.get(DEFAULT_PLATFORM_POSITION_WITH_SPRING));
+
 
         hub = new ShapeRenderer();
         score = 0;
@@ -262,6 +306,12 @@ public class World {
         generator.dispose();
     }
 
+    public int getCountOf(int TIME_TO_SHOW_AN_ITEM) {
+        return  countItemTime % TIME_TO_SHOW_AN_ITEM;
+    }
+
+
+
     public int getScore() {
         return score;
     }
@@ -277,6 +327,7 @@ public class World {
     public PlatformBroken getPlatformBroken() {
         return platformBroken;
     }
+
 
     public void setPlatformBroken(PlatformBroken platformBroken) {
         this.platformBroken = platformBroken;
@@ -300,4 +351,5 @@ public class World {
         }
         font.dispose();
     }
+
 }
