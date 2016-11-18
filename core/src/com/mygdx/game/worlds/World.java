@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.mygdx.game.entities.Base;
+import com.mygdx.game.entities.FlyingItem;
 import com.mygdx.game.entities.Item;
 import com.mygdx.game.entities.Platform;
 import com.mygdx.game.entities.PlatformBroken;
@@ -43,7 +44,7 @@ public class World {
     private ShapeRenderer hub;
     BitmapFont font;
     private int countItemTime = 0;
-    private  int countSpringTime = 0;
+    private int countSpringTime = 0;
 
     private boolean gameOver;
 
@@ -57,6 +58,9 @@ public class World {
     }
 
     public void tick() {
+
+        instancesTick();
+
         countItemTime++;
         countSpringTime++;
 
@@ -78,10 +82,14 @@ public class World {
         }
     }
 
+    private void instancesTick() {
+        FlyingItem.instance.tick();
+    }
+
     private void showAnRandomItem() {
         //spawn an item on a random platform which is not having a spring
         int randomPosition;
-        do{
+        do {
 
             randomPosition = (int) (Math.random() * platforms.size());
         }
@@ -112,9 +120,14 @@ public class World {
             platform.render(batch);
         }
         platformBroken.render(batch);
-        player.render(batch);
         base.render(batch);
         spring.render(batch);
+        player.render(batch);
+        instancesRender(batch);
+    }
+
+    private void instancesRender(SpriteBatch batch) {
+        FlyingItem.instance.render(batch);
     }
 
     private void createSpring() {
@@ -143,9 +156,19 @@ public class World {
             return;
         }
         for (Platform platform : platforms) {
+
             // move the platform downward while player get higher
+
+
             if (player.getVy() < 0) {
                 platform.setY(platform.getY() - player.getVy());
+
+                //newww
+                //scroll the FlyingItems too
+//                FlyingItem.instance.scroll(player.getVy());
+
+                //Its a new feature now
+
             }
 
             // reset the platform's position which was below the screen
@@ -156,17 +179,18 @@ public class World {
                 //new
                 platform.getItem().getNewRandomType();
 
-                if (countItemTime >= TIME_TO_SHOW_AN_ITEM){
-                    countItemTime =0;
+                if (countItemTime >= TIME_TO_SHOW_AN_ITEM) {
+                    countItemTime = 0;
                     platform.showItem();
                 }
 
-                if (platform == spring.getAttachedPlatform()){
+
+                if (platform == spring.getAttachedPlatform()) {
                     if (spring.isAppear()) {
 
                     }
                 }
-
+                /*----------------------------spring collide--------------------*/
                 if (platform == spring.getAttachedPlatform()) {
                     if (spring.isAppear()) {
                         //spring passed away
@@ -174,7 +198,7 @@ public class World {
                     } else {
                         if (countSpringTime >= TIME_TO_SHOW_AN_SPRING) {
                             //show the spring
-                            countSpringTime =0;
+                            countSpringTime = 0;
                             spring.setAppear(true);
                         }
                     }
@@ -195,11 +219,22 @@ public class World {
 
             //with Items
             Item item = platform.getItem();
-            if (player.getBounds().overlaps(item.getBounds())
-                    && item.isAlive()) {
-                System.out.println("Got " + item);
+            if (item.gravityRangeReached(player)
+                    && item.isCollidable()) {
+                System.out.println("Reached " + item);
+                //debug
                 item.setAlive(false);
+                FlyingItem.trigger(handler, item, player);
             }
+
+//            if (player.getBounds().overlaps(item.getBounds())
+//                    && item.isAlive()) {
+//                System.out.println("Got " + item);
+//                item.setAlive(false);
+//                FlyingItem.trigger(handler,item,player);
+//            }
+
+            // overlap with circle range
 
 
             // collides with platforms
@@ -249,8 +284,8 @@ public class World {
 
     public void rearrangeSpring() {
         spring.setAppear(false);
-        countSpringTime=0;
-        int newPlatformNum = (int) (Math.random()*platforms.size());
+        countSpringTime = 0;
+        int newPlatformNum = (int) (Math.random() * platforms.size());
         spring.setAttachedPlatform(platforms.get(newPlatformNum));
     }
 
@@ -307,9 +342,8 @@ public class World {
     }
 
     public int getCountOf(int TIME_TO_SHOW_AN_ITEM) {
-        return  countItemTime % TIME_TO_SHOW_AN_ITEM;
+        return countItemTime % TIME_TO_SHOW_AN_ITEM;
     }
-
 
 
     public int getScore() {

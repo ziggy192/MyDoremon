@@ -23,7 +23,6 @@ public class Player extends Entity {
     private boolean dead = false;
     private float angle = 0;
 
-    private Rectangle bounds ;
 
     public static Player generate(Handler handler) {
         return new Player(handler,
@@ -42,7 +41,6 @@ public class Player extends Entity {
         this.isMovingLeft = false;
         this.isMovingRight = false;
 
-        bounds = new Rectangle(x, y, PLAYER_WIDTH, PLAYER_HEIGHT);
     }
 
     @Override
@@ -60,9 +58,6 @@ public class Player extends Entity {
         updateBounds();
     }
 
-    private void updateBounds() {
-        bounds =  new Rectangle(x, y, PLAYER_WIDTH, PLAYER_HEIGHT);
-    }
 
     private void controlDirection() {
 
@@ -238,9 +233,6 @@ public class Player extends Entity {
         this.dead = dead;
     }
 
-    public Rectangle getBounds() {
-        return bounds;
-    }
 
     public void setDeadDir() {
         if (this.dir.equals("right") || this.dir.equals("right_land")) {

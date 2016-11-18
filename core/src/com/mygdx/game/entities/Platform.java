@@ -48,6 +48,12 @@ public class Platform extends Entity {
     }
 
     @Override
+    public void setY(float y) {
+        super.setY(y);
+        item.updateWithPlatform(this);
+    }
+
+    @Override
     public void render(SpriteBatch batch) {
         if (getCurrentFrame() == null) {
             return;

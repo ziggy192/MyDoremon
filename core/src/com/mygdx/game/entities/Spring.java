@@ -17,7 +17,6 @@ public class Spring extends Entity {
 
 
     private Platform attachedPlatform ;
-    private Rectangle bounds;
 
 //    public static Spring generate(Handler handler) {
 //        return new Spring(handler, 0, 0);
@@ -26,13 +25,12 @@ public class Spring extends Entity {
     public Spring(Handler handler, Platform attachedPlatform) {
         super(handler, attachedPlatform.getX(), attachedPlatform.getY(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
         this.attachedPlatform = attachedPlatform;
-        bounds = new Rectangle(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         appear = false;
     }
 
     @Override
     public void tick() {
-        System.out.println("Spring appear : " +(appear ? "true" : "false"));
+//        System.out.println("Spring appear : " +(appear ? "true" : "false"));
         updatePosition();
     }
 
@@ -48,16 +46,11 @@ public class Spring extends Entity {
     public void updatePosition(){
         setX(attachedPlatform.getX() + attachedPlatform.getWidth() / 2 - this.getWidth() / 2);
         setY(attachedPlatform.getY() - attachedPlatform.getHeight());
-        updateBounds(x,y);
+        updateBounds();
     }
 
-    private void updateBounds(float x, float y) {
-        bounds = new Rectangle(x, y,getWidth(), getHeight());
-    }
 
-    public Rectangle getBounds() {
-        return bounds;
-    }
+
 
     public Platform getAttachedPlatform() {
         return attachedPlatform;

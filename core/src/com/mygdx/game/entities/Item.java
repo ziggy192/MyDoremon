@@ -1,8 +1,10 @@
 package com.mygdx.game.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.main.Handler;
+import com.mygdx.game.worlds.World;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +18,9 @@ public class Item extends Entity {
     private static final int DEFAULT_WIDTH = 80;
     private static final int DEFAULT_HEIGHT = 80;
 
+    private static final int DEFAULT_BOUNDS_RADIUS = 220;
+
+
 
     private static final ItemAttributes[] attributes = new ItemAttributes[]{
             new ItemAttributes("food-01.png"),
@@ -27,7 +32,8 @@ public class Item extends Entity {
     public static final ArrayList<ItemAttributes> itemTypes = new ArrayList<ItemAttributes>(Arrays.asList(attributes));
     private static final int DEFAULT_TYPE = 0;
 
-    private Rectangle bounds;
+    private Circle gravityCircle;
+
     private int type;
     private boolean alive;
 
@@ -39,7 +45,7 @@ public class Item extends Entity {
             this.type = DEFAULT_TYPE;
         }
 
-        bounds = new Rectangle(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        gravityCircle = new Circle(x, y, DEFAULT_BOUNDS_RADIUS);
         alive = false;
 //        alive = true;
     }
@@ -52,27 +58,28 @@ public class Item extends Entity {
     @Override
     public void tick() {
         updateBounds();
+        updateGravityCircle();
     }
 
-    private void updateBounds() {
-        bounds = new Rectangle(x, y, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
 
     public int getType() {
         return type;
     }
 
-    public Rectangle getBounds() {
-        return bounds;
-    }
 
     public boolean isAlive() {
         return alive;
     }
 
+
+    public boolean isCollidable() {
+        return isAlive() && getY()+getHeight() <= handler.getHeight();
+    }
+
     public void setAlive(boolean alive) {
         this.alive = alive;
     }
+
 
     @Override
     public void render(SpriteBatch batch) {
@@ -90,6 +97,20 @@ public class Item extends Entity {
         setX(platform.getX() + (platform.getWidth() - DEFAULT_WIDTH) / 2);
         setY(platform.getY() - DEFAULT_HEIGHT);
         updateBounds();
+        updateGravityCircle();
+    }
+
+    private void updateGravityCircle() {
+        gravityCircle.setX(x);
+        gravityCircle.setY(y);
+    }
+
+    public boolean gravityRangeReached(Entity target) {
+        return gravityCircle.contains(target.getMiddleX(), target.getMiddleY());
+    }
+
+    public ItemAttributes getItemAttributes() {
+        return itemTypes.get(type);
     }
 
 
